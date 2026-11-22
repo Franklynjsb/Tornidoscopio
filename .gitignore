@@ -1,0 +1,54 @@
+# ==============================================================================
+# Backend (Java / Maven / Spring Boot)
+# ==============================================================================
+HELP.md
+target/
+api/target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ==============================================================================
+# IDEs (IntelliJ, Eclipse, NetBeans, VS Code)
+# ==============================================================================
+.sts4-cache
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.ead
+.idea/
+*.iws
+*.iml
+*.ipr
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+.vscode/
+
+# ==============================================================================
+# Frontend (Next.js / Node)
+# ==============================================================================
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+frontend/out/
+.env
+.env*.local
+frontend/.env*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ==============================================================================
+# OS
+# ==============================================================================
+.DS_Store
+Thumbs.db
