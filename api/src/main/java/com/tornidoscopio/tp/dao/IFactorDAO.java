@@ -9,5 +9,6 @@ public interface IFactorDAO {
     void modificar(Factor f);
     void eliminar(Long id);
     List<Factor> buscar(String criterio);
+    List<Factor> buscarPorCompetencia(Long idCompetencia);
     Factor buscarPorId(Long id);
 }

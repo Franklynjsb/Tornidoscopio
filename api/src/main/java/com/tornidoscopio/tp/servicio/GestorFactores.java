@@ -19,6 +19,10 @@ public class GestorFactores {
         return null;
     }
 
+    public List<FactorDTO> buscarPorCompetencia(Long idCompetencia) {
+        return null;
+    }
+
     public void alta(FactorDTO dto) {
     }
 
