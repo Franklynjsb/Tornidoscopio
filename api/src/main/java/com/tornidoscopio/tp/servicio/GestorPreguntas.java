@@ -23,7 +23,7 @@ public class GestorPreguntas {
     // GestorPreguntas ..> IServicioIA
     private IServicioIA servicioIA;
 
-    public List<PreguntaDTO> buscarPreguntas(String criterios) {
+    public List<PreguntaDTO> buscarPreguntas(String competencia, String factor, String nombrePregunta) {
         return null;
     }
 
@@ -45,6 +45,10 @@ public class GestorPreguntas {
     }
 
     public Boolean validarPonderacion(List<PreguntaOpcionDTO> opc) {
+        return null;
+    }
+
+    private Boolean validarCriterios(String competencia, String factor, String nombrePregunta) {
         return null;
     }
 
