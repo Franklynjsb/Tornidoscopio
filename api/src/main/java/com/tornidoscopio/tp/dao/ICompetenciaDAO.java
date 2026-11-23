@@ -9,4 +9,5 @@ public interface ICompetenciaDAO {
     void modificar(Competencia c);
     void eliminar(Long id);
     List<Competencia> buscar(String criterio);
+    Competencia buscarPorId(Long id);
 }
