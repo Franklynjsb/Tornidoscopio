@@ -14,6 +14,7 @@ import com.tornidoscopio.tp.dominio.PreguntaOpcion;
 import com.tornidoscopio.tp.dto.PreguntaDTO;
 import com.tornidoscopio.tp.dto.PreguntaOpcionDTO;
 import com.tornidoscopio.tp.dto.PreguntaSugeridaDTO;
+import com.tornidoscopio.tp.excepciones.PreguntaDuplicadaException;
 import com.tornidoscopio.tp.excepciones.ReglaNegocioException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

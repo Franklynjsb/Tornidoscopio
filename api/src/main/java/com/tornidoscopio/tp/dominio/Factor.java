@@ -3,7 +3,10 @@ package com.tornidoscopio.tp.dominio;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "factor")
@@ -54,7 +57,19 @@ public class Factor {
                 .count();
     }
 
+    /**
+     * CU026 - Paso 3 / Obs (1): selecciona aleatoriamente {@code n} preguntas activas
+     * pertenecientes a este factor.
+     */
     public List<Pregunta> obtenerPreguntasAleatorias(Integer n) {
-        return null;
+        if (n == null || n <= 0 || preguntas == null) {
+            return new ArrayList<>();
+        }
+        List<Pregunta> activas = preguntas.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getActivo()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        Collections.shuffle(activas);
+        int cantidad = Math.min(n, activas.size());
+        return new ArrayList<>(activas.subList(0, cantidad));
     }
 }

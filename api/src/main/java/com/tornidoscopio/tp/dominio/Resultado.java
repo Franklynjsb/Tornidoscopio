@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,5 +34,13 @@ public class Resultado {
     private List<ResultadoCompetencia> resultadosCompetencia;
 
     public void agregarResultadoCompetencia(ResultadoCompetencia rc) {
+        if (rc == null) {
+            return;
+        }
+        if (this.resultadosCompetencia == null) {
+            this.resultadosCompetencia = new ArrayList<>();
+        }
+        rc.setResultado(this);
+        this.resultadosCompetencia.add(rc);
     }
 }
