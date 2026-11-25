@@ -40,8 +40,18 @@ public class Factor {
     @OneToMany(mappedBy = "factor", cascade = CascadeType.ALL)
     private List<Pregunta> preguntas;
 
+    /**
+     * CU025 - Cuenta la cantidad de preguntas activas asociadas a este factor.
+     *
+     * @return cantidad de preguntas con {@code activo == true}
+     */
     public Integer cantidadPreguntasActivas() {
-        return null;
+        if (preguntas == null) {
+            return 0;
+        }
+        return (int) preguntas.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getActivo()))
+                .count();
     }
 
     public List<Pregunta> obtenerPreguntasAleatorias(Integer n) {
