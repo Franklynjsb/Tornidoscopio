@@ -33,6 +33,9 @@ public class PreguntaDAOImpl implements IPreguntaDAO {
         }
     }
 
+    // =========================================================================
+    // CU020 - Gestionar Preguntas: Consulta de preguntas filtrando por competencia, factor y nombre
+    // =========================================================================
     @Override
     public List<Pregunta> buscar(String competencia, String factor, String nombrePregunta) {
         String compFiltro = (competencia == null || competencia.trim().isEmpty()) ? "" : competencia.trim().toLowerCase();
