@@ -331,38 +331,46 @@ export function EvaluarCandidatosScreen() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-2">
-                <div className="space-y-2">
-                  <Label>Apellido</Label>
-                  <Input
-                    placeholder="Apellido"
-                    value={searchApellido}
-                    onChange={(e) => setSearchApellido(e.target.value.toUpperCase())}
-                    className="uppercase"
-                  />
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleSearch()
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-2">
+                    <Label>Apellido</Label>
+                    <Input
+                      placeholder="Apellido"
+                      value={searchApellido}
+                      onChange={(e) => setSearchApellido(e.target.value.toUpperCase())}
+                      className="uppercase"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Nombre</Label>
+                    <Input
+                      placeholder="Nombre"
+                      value={searchNombre}
+                      onChange={(e) => setSearchNombre(e.target.value.toUpperCase())}
+                      className="uppercase"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Nro Candidato</Label>
+                    <Input
+                      placeholder="1001"
+                      value={searchNroCandidato}
+                      onChange={(e) => setSearchNroCandidato(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Nombre</Label>
-                  <Input
-                    placeholder="Nombre"
-                    value={searchNombre}
-                    onChange={(e) => setSearchNombre(e.target.value.toUpperCase())}
-                    className="uppercase"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Nro Candidato</Label>
-                  <Input
-                    placeholder="1001"
-                    value={searchNroCandidato}
-                    onChange={(e) => setSearchNroCandidato(e.target.value)}
-                  />
-                </div>
-              </div>
-              <Button onClick={handleSearch} className="w-full" disabled={isLoading}>
-                <Search className="h-4 w-4 mr-2" />
-                {isLoading ? "Buscando..." : "Buscar"}
-              </Button>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Search className="h-4 w-4 mr-2" />
+                  {isLoading ? "Buscando..." : "Buscar"}
+                </Button>
+              </form>
 
               {hasSearched && (
                 <Table>
