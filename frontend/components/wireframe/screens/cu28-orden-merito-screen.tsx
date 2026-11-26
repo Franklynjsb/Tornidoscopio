@@ -204,44 +204,51 @@ export function OrdenMeritoScreen() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Código</Label>
-                  <Input
-                    placeholder="Ej: PUE-01"
-                    value={searchCodigo}
-                    onChange={(e) => setSearchCodigo(e.target.value.toUpperCase())}
-                    className="uppercase"
-                  />
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleSearch()
+                }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Código</Label>
+                    <Input
+                      placeholder="Ej: PUE-01"
+                      value={searchCodigo}
+                      onChange={(e) => setSearchCodigo(e.target.value.toUpperCase())}
+                      className="uppercase"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Nombre del Puesto</Label>
+                    <Input
+                      placeholder="Ej: LÍDER"
+                      value={searchNombre}
+                      onChange={(e) => setSearchNombre(e.target.value.toUpperCase())}
+                      className="uppercase"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Empresa</Label>
+                    <Input
+                      placeholder="Ej: TECHCORP"
+                      value={searchEmpresa}
+                      onChange={(e) => setSearchEmpresa(e.target.value.toUpperCase())}
+                      className="uppercase"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Nombre del Puesto</Label>
-                  <Input
-                    placeholder="Ej: LÍDER"
-                    value={searchNombre}
-                    onChange={(e) => setSearchNombre(e.target.value.toUpperCase())}
-                    className="uppercase"
-                  />
+                <div className="flex gap-2 mt-4">
+                  <Button type="submit" disabled={isLoading}>
+                    <Search className="h-4 w-4 mr-2" />
+                    {isLoading ? "Buscando..." : "Buscar"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setCurrentScreen("dashboard")}>
+                    Cancelar
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label>Empresa</Label>
-                  <Input
-                    placeholder="Ej: TECHCORP"
-                    value={searchEmpresa}
-                    onChange={(e) => setSearchEmpresa(e.target.value.toUpperCase())}
-                    className="uppercase"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2 mt-4">
-                <Button onClick={handleSearch} disabled={isLoading}>
-                  <Search className="h-4 w-4 mr-2" />
-                  {isLoading ? "Buscando..." : "Buscar"}
-                </Button>
-                <Button variant="outline" onClick={() => setCurrentScreen("dashboard")}>
-                  Cancelar
-                </Button>
-              </div>
+              </form>
             </CardContent>
           </Card>
 
