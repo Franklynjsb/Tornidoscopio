@@ -56,23 +56,32 @@ public class GestorReportes {
     // de q.getResultado() y getResultadosCompetencia()
     @Transactional(readOnly = true)
     public List<OrdenMeritoDTO> generarOrdenMerito(Long idPuesto, List<LocalDateTime> fechas) {
+        if (idPuesto == null || fechas == null || fechas.isEmpty()) {
+            return List.of();
+        }
         List<Cuestionario> listaCuestionarios = cuestionarioDAO.buscarPorPuesto(idPuesto);
         List<OrdenMeritoDTO> listaOrdenMeritoDTO = new ArrayList<>();
 
         for (Cuestionario q : listaCuestionarios) {
             // Solo interesan los cuestionarios de las evaluaciones seleccionadas
-            if (!fechas.contains(q.getFechaCreacion())) {
+            if (q.getFechaCreacion() == null || !fechas.contains(q.getFechaCreacion())) {
                 continue;
             }
             OrdenMeritoDTO ordenDTO = armarOrdenMeritoDTO(q);
             // Un candidato cumple los mínimos si su cuestionario está COMPLETO y en
             // TODAS las competencias obtuvo al menos el puntaje requerido por el puesto
             boolean cumpleMinimos = false;
-            if (q.getEstado() == EstadoCuestionario.COMPLETO) {
+            if (q.getEstado() == EstadoCuestionario.COMPLETO
+                    && q.getResultado() != null
+                    && q.getResultado().getResultadosCompetencia() != null
+                    && !q.getResultado().getResultadosCompetencia().isEmpty()) {
                 cumpleMinimos = true;
                 for (ResultadoCompetencia rc : q.getResultado().getResultadosCompetencia()) {
-                    if (rc.getPuntajeObtenido() < rc.getPuntajeRequerido()) {
+                    if (rc.getPuntajeObtenido() == null
+                            || rc.getPuntajeRequerido() == null
+                            || rc.getPuntajeObtenido() < rc.getPuntajeRequerido()) {
                         cumpleMinimos = false;
+                        break;
                     }
                 }
             }
@@ -92,13 +101,16 @@ public class GestorReportes {
      */
     @Transactional(readOnly = true)
     public List<LocalDateTime> obtenerFechasEvaluaciones(Long idPuesto) {
+        if (idPuesto == null) {
+            return List.of();
+        }
         List<Cuestionario> listaCuestionarios = cuestionarioDAO.buscarPorPuesto(idPuesto);
         List<LocalDateTime> listaFechas = new ArrayList<>();
         for (Cuestionario q : listaCuestionarios) {
             LocalDateTime fechaCreacion = q.getFechaCreacion();
             // Los cuestionarios de una misma evaluación comparten la fecha de creación,
             // por eso se agrega solo una vez
-            if (!listaFechas.contains(fechaCreacion)) {
+            if (fechaCreacion != null && !listaFechas.contains(fechaCreacion)) {
                 listaFechas.add(fechaCreacion);
             }
         }
@@ -115,6 +127,17 @@ public class GestorReportes {
         Candidato ca = q.getCandidato();
         EstadoCuestionario estado = q.getEstado();
 
+        String nombreCandidato = null;
+        String apellidoCandidato = null;
+        TipoDocumento tipoDocumento = null;
+        String nroDocumento = null;
+        if (ca != null) {
+            nombreCandidato = ca.getNombre();
+            apellidoCandidato = ca.getApellido();
+            tipoDocumento = ca.getTipoDocumento();
+            nroDocumento = ca.getNroDocumento();
+        }
+
         Double puntajeTotal = null;              // (1) solo se muestra si está COMPLETO
         LocalDateTime fechaFinOUltimoIngreso;    // (2) fin si COMPLETO, último ingreso si no
         // Valor inicial: el valor real lo calcula generarOrdenMerito y se asigna
@@ -125,17 +148,21 @@ public class GestorReportes {
             fechaFinOUltimoIngreso = q.getFechaFin();
             // El puntaje total es la suma de los puntajes obtenidos en cada competencia
             puntajeTotal = 0.0;
-            for (ResultadoCompetencia rc : q.getResultado().getResultadosCompetencia()) {
-                puntajeTotal += rc.getPuntajeObtenido();
+            if (q.getResultado() != null && q.getResultado().getResultadosCompetencia() != null) {
+                for (ResultadoCompetencia rc : q.getResultado().getResultadosCompetencia()) {
+                    if (rc.getPuntajeObtenido() != null) {
+                        puntajeTotal += rc.getPuntajeObtenido();
+                    }
+                }
             }
         } else {
             fechaFinOUltimoIngreso = q.getFechaUltimoIngreso();
         }
         return new OrdenMeritoDTO(
-                ca.getNombre(),
-                ca.getApellido(),
-                ca.getTipoDocumento(),
-                ca.getNroDocumento(),
+                nombreCandidato,
+                apellidoCandidato,
+                tipoDocumento,
+                nroDocumento,
                 puntajeTotal,
                 estado,
                 q.getFechaHoraInicio(),
