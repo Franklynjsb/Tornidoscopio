@@ -3,10 +3,7 @@ package com.tornidoscopio.tp.servicio;
 import com.tornidoscopio.tp.dao.ICuestionarioDAO;
 import com.tornidoscopio.tp.dao.IEmpresaDAO;
 import com.tornidoscopio.tp.dao.IPuestoDAO;
-import com.tornidoscopio.tp.dominio.Competencia;
-import com.tornidoscopio.tp.dominio.CompetenciaRequerida;
-import com.tornidoscopio.tp.dominio.Factor;
-import com.tornidoscopio.tp.dominio.Puesto;
+import com.tornidoscopio.tp.dominio.*;
 import com.tornidoscopio.tp.dto.CompetenciaRequeridaDTO;
 import com.tornidoscopio.tp.dto.PuestoDTO;
 import com.tornidoscopio.tp.excepciones.CompetenciasNoEvaluablesException;
@@ -144,14 +141,44 @@ public class GestorPuestos {
         return listaSinFactor;
     }
 
+    /**
+     * Convierte un Puesto en un PuestoDTO para mostrarlo en pantalla.
+     * Además de los datos del puesto, calcula dos cantidades a partir de sus cuestionarios
+     * CU028 - Paso 4, columnas "Candidatos" y "Evaluaciones Completas":
+     * cantCandidatos: total de cuestionarios del puesto (uno por candidato evaluado).
+     * cantEvaluacionesCompletas: cuántos de esos cuestionarios están en estado COMPLETO.
+     * @param p puesto a convertir
+     * @return DTO con los datos del puesto y sus cantidades
+     */
+
     private PuestoDTO armarPuestoDTO(Puesto p) {
+        // Un cuestionario por cada candidato evaluado en este puesto
+        List<Cuestionario> listaCuestionarios = cuestionarioDAO.buscarPorPuesto(p.getId());
+        int cantCandidatos = listaCuestionarios.size();
+        // Se cuentan solo los cuestionarios que el candidato terminó de responder
+        int cantEvaluacionesCompletas = 0;
+        for (Cuestionario q : listaCuestionarios) {
+            if (q.getEstado() == EstadoCuestionario.COMPLETO) {
+                cantEvaluacionesCompletas = cantEvaluacionesCompletas + 1;
+            }
+        }
+        // La empresa puede ser null: en ese caso se evita un NullPointerException
+        // y los datos de la empresa quedan en null
+        Long idEmpresa = null;
+        String nombreEmpresa = null;
+        if (p.getEmpresa() != null) {
+            idEmpresa = p.getEmpresa().getId();
+            nombreEmpresa = p.getEmpresa().getNombre();
+        }
         return PuestoDTO.builder()
                 .id(p.getId())
                 .codigo(p.getCodigo())
                 .nombre(p.getNombre())
                 .descripcion(p.getDescripcion())
-                .idEmpresa(p.getEmpresa() != null ? p.getEmpresa().getId() : null)
-                .nombreEmpresa(p.getEmpresa() != null ? p.getEmpresa().getNombre() : null)
+                .idEmpresa(idEmpresa)
+                .nombreEmpresa(nombreEmpresa)
+                .cantCandidatos(cantCandidatos)
+                .cantEvaluacionesCompletas(cantEvaluacionesCompletas)
                 .build();
     }
 
@@ -159,11 +186,17 @@ public class GestorPuestos {
         return null;
     }
 
+    /**
+     * Convierte una CompetenciaRequerida (competencia de un puesto con su puntaje
+     * mínimo) en un CompetenciaRequeridaDTO.
+     * Toma el id y el nombre de la competencia, y el puntaje mínimo que el puesto exige en ella.
+     */
     private CompetenciaRequeridaDTO armarCompetenciaRequeridaDTO(CompetenciaRequerida cr) {
         Competencia comp = cr.getCompetencia();
         return CompetenciaRequeridaDTO.builder()
                 .idCompetencia(comp.getId())
                 .nombreCompetencia(comp.getNombre())
+                // Puntaje mínimo que debe alcanzar un candidato en esta competencia para el puesto
                 .puntajeMinimoRequerido(cr.getPuntajeMinimoRequerido())
                 .build();
     }
