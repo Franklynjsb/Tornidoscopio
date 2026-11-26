@@ -44,5 +44,10 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     return undefined as T
   }
 
-  return response.json()
+  const text = await response.text()
+  if (!text) {
+    return undefined as T
+  }
+
+  return JSON.parse(text) as T
 }
