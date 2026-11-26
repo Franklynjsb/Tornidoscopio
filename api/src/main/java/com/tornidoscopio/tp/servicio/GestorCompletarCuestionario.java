@@ -249,16 +249,23 @@ public class GestorCompletarCuestionario {
                 .resultadosCompetencia(new ArrayList<>())
                 .build();
 
+        Set<Object> competenciasEvaluadas = obtenerCompetenciasEvaluadas(c);
         if (c.getPuesto() != null && c.getPuesto().getCompetenciasRequeridas() != null) {
             for (CompetenciaRequerida cr : c.getPuesto().getCompetenciasRequeridas()) {
                 Competencia competencia = cr.getCompetencia();
                 if (competencia == null || !Boolean.TRUE.equals(competencia.getActivo())) {
                     continue;
                 }
+                Object claveCompetencia = obtenerClaveCompetencia(competencia);
+                if (!competenciasEvaluadas.contains(claveCompetencia)) {
+                    // CU026 Obs (1): si la competencia no tuvo factores evaluables en el cuestionario, no se evalúa
+                    continue;
+                }
                 Double puntajeObtenido = c.calcularPuntajeCompetencia(competencia);
-                Double puntajeRequerido = cr.getPuntajeMinimoRequerido() != null
-                        ? cr.getPuntajeMinimoRequerido()
-                        : 0.0;
+                Double puntajeRequerido = 0.0;
+                if (cr.getPuntajeMinimoRequerido() != null) {
+                    puntajeRequerido = cr.getPuntajeMinimoRequerido();
+                }
 
                 ResultadoCompetencia rc = ResultadoCompetencia.builder()
                         .competencia(competencia)
@@ -270,6 +277,35 @@ public class GestorCompletarCuestionario {
         }
 
         return resultado;
+    }
+
+    private Set<Object> obtenerCompetenciasEvaluadas(Cuestionario c) {
+        Set<Object> evaluadas = new HashSet<>();
+        if (c.getBloques() == null) {
+            return evaluadas;
+        }
+        for (BloqueCuestionario bloque : c.getBloques()) {
+            if (bloque.getRespuestas() == null) {
+                continue;
+            }
+            for (RespuestaCandidato rc : bloque.getRespuestas()) {
+                if (rc.getPregunta() == null || rc.getPregunta().getFactor() == null) {
+                    continue;
+                }
+                Competencia competencia = rc.getPregunta().getFactor().getCompetencia();
+                if (competencia != null) {
+                    evaluadas.add(obtenerClaveCompetencia(competencia));
+                }
+            }
+        }
+        return evaluadas;
+    }
+
+    private Object obtenerClaveCompetencia(Competencia competencia) {
+        if (competencia.getId() != null) {
+            return competencia.getId();
+        }
+        return competencia;
     }
 
     private CuestionarioDTO armarCuestionarioDTO(Cuestionario c) {
@@ -341,7 +377,12 @@ public class GestorCompletarCuestionario {
                 .filter(rc -> rc.getPregunta() == null
                         || rc.getPregunta().getId() == null
                         || !respondidas.contains(rc.getPregunta().getId()))
-                .map(rc -> rc.getPregunta() != null ? rc.getPregunta().getEnunciado() : "Pregunta")
+                .map(rc -> {
+                    if (rc.getPregunta() != null) {
+                        return rc.getPregunta().getEnunciado();
+                    }
+                    return "Pregunta";
+                })
                 .toList();
     }
 }

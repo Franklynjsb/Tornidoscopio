@@ -219,6 +219,75 @@ class GestorCompletarCuestionarioTest {
         verify(resultadoDAO, never()).crear(any());
     }
 
+    @Test
+    void finalizarCuestionario_omiteCompetenciaSinFactoresEvaluablesYConservaEvaluadaEnCero() {
+        ItemOpcion itemCero = ItemOpcion.builder().id(1L).ordenVisualizacion(1).descripcion("MALO").build();
+        ItemOpcion itemDiez = ItemOpcion.builder().id(2L).ordenVisualizacion(2).descripcion("EXCELENTE").build();
+        OpcionRespuesta escala = OpcionRespuesta.builder()
+                .id(1L)
+                .nombre("ESCALA")
+                .activo(true)
+                .items(List.of(itemCero, itemDiez))
+                .build();
+
+        Competencia compEvaluable = Competencia.builder().id(1L).nombre("LEALTAD").activo(true).build();
+        Factor factorEvaluable = Factor.builder().id(1L).nombre("CREDIBILIDAD").activo(true).competencia(compEvaluable).build();
+        factorEvaluable.setPreguntas(List.of(
+                crearPregunta(1L, "Pregunta E-1", factorEvaluable, escala, itemCero, itemDiez),
+                crearPregunta(2L, "Pregunta E-2", factorEvaluable, escala, itemCero, itemDiez)
+        ));
+        compEvaluable.setFactores(List.of(factorEvaluable));
+
+        Competencia compNoEvaluable = Competencia.builder().id(2L).nombre("LIDERAZGO").activo(true).build();
+        Factor factorInsuficiente = Factor.builder().id(2L).nombre("DELEGACION").activo(true).competencia(compNoEvaluable).build();
+        factorInsuficiente.setPreguntas(List.of(
+                crearPregunta(3L, "Pregunta NE-1", factorInsuficiente, escala, itemCero, itemDiez)
+        ));
+        compNoEvaluable.setFactores(List.of(factorInsuficiente));
+
+        Puesto puesto = Puesto.builder()
+                .id(1L)
+                .nombre("ANALISTA")
+                .activo(true)
+                .competenciasRequeridas(List.of(
+                        CompetenciaRequerida.builder().id(1L).competencia(compEvaluable).puntajeMinimoRequerido(6.0).build(),
+                        CompetenciaRequerida.builder().id(2L).competencia(compNoEvaluable).puntajeMinimoRequerido(7.0).build()
+                ))
+                .build();
+
+        Cuestionario cuestionario = Cuestionario.builder()
+                .id(30L)
+                .claveIngreso("EDGE0001")
+                .estado(EstadoCuestionario.ACTIVO)
+                .cantAccesos(1)
+                .fechaCreacion(LocalDateTime.now().minusMinutes(5))
+                .puesto(puesto)
+                .bloques(new ArrayList<>())
+                .build();
+
+        when(cuestionarioDAO.buscarPorId(30L)).thenReturn(cuestionario);
+
+        BloqueCuestionarioDTO bloque = gestor.obtenerSiguienteBloque(30L);
+        assertEquals(2, bloque.getPreguntas().size());
+        assertTrue(bloque.getEsUltimo());
+
+        // Seleccionar explícitamente la opción de ponderación 0.0 para la competencia evaluable
+        List<RespuestaCandidatoDTO> respuestas = bloque.getPreguntas().stream()
+                .map(p -> new RespuestaCandidatoDTO(p.getId(), itemCero.getId()))
+                .toList();
+        assertTrue(gestor.registrarBloqueRespuestas(30L, respuestas));
+
+        gestor.finalizarCuestionario(30L);
+
+        ArgumentCaptor<Resultado> resultadoCaptor = ArgumentCaptor.forClass(Resultado.class);
+        verify(resultadoDAO).crear(resultadoCaptor.capture());
+        Resultado resultado = resultadoCaptor.getValue();
+        assertEquals(1, resultado.getResultadosCompetencia().size());
+        assertEquals(1L, resultado.getResultadosCompetencia().get(0).getCompetencia().getId());
+        assertEquals(0.0, resultado.getResultadosCompetencia().get(0).getPuntajeObtenido(), 0.0001);
+        assertEquals(6.0, resultado.getResultadosCompetencia().get(0).getPuntajeRequerido(), 0.0001);
+    }
+
     private Cuestionario crearCuestionarioCompletoConDosFactores() {
         ItemOpcion itemMalo = ItemOpcion.builder().id(1L).ordenVisualizacion(1).descripcion("MALO").build();
         ItemOpcion itemExcelente = ItemOpcion.builder().id(2L).ordenVisualizacion(2).descripcion("EXCELENTE").build();
