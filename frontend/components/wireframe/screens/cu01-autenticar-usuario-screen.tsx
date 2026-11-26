@@ -83,96 +83,112 @@ export function AutenticarUsuarioScreen() {
             </TabsList>
 
             <TabsContent value="consultor" className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="usuario">Usuario *</Label>
-                <Input
-                  id="usuario"
-                  placeholder="Ingrese su usuario"
-                  value={usuario}
-                  onChange={(e) => setUsuario(e.target.value.toUpperCase())}
-                  maxLength={15}
-                  className="uppercase"
-                />
-                <p className="text-xs text-muted-foreground">Máximo 15 caracteres (Autenticación vía LDAP)</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Contraseña *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="********"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  maxLength={20}
-                />
-                <p className="text-xs text-muted-foreground">Máximo 20 caracteres</p>
-              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleConsultorLogin()
+                }}
+                className="space-y-4"
+              >
+                <div className="space-y-2">
+                  <Label htmlFor="usuario">Usuario *</Label>
+                  <Input
+                    id="usuario"
+                    placeholder="Ingrese su usuario"
+                    value={usuario}
+                    onChange={(e) => setUsuario(e.target.value.toUpperCase())}
+                    maxLength={15}
+                    className="uppercase"
+                  />
+                  <p className="text-xs text-muted-foreground">Máximo 15 caracteres (Autenticación vía LDAP)</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Contraseña *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="********"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    maxLength={20}
+                  />
+                  <p className="text-xs text-muted-foreground">Máximo 20 caracteres</p>
+                </div>
 
-              {errorMessage && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{errorMessage}</AlertDescription>
-                </Alert>
-              )}
+                {errorMessage && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                  </Alert>
+                )}
 
-              <div className="flex gap-2 pt-2">
-                <Button className="w-full" onClick={handleConsultorLogin}>
-                  Ingresar como Consultor
-                </Button>
-              </div>
+                <div className="flex gap-2 pt-2">
+                  <Button type="submit" className="w-full">
+                    Ingresar como Consultor
+                  </Button>
+                </div>
+              </form>
             </TabsContent>
 
             <TabsContent value="candidato" className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="tipo-doc">Tipo de Documento</Label>
-                <Select value={tipoDocumento} onValueChange={(v) => setTipoDocumento(v as TipoDocumento)}>
-                  <SelectTrigger id="tipo-doc">
-                    <SelectValue placeholder="Seleccione tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DNI">DNI</SelectItem>
-                    <SelectItem value="LE">LE</SelectItem>
-                    <SelectItem value="LC">LC</SelectItem>
-                    <SelectItem value="PP">PP (Pasaporte)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="nro-doc">Número de Documento</Label>
-                <Input
-                  id="nro-doc"
-                  placeholder="Ej: 40123456"
-                  value={nroDocumento}
-                  onChange={(e) => setNroDocumento(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="clave">Clave de Ingreso *</Label>
-                <Input
-                  id="clave"
-                  placeholder="Ej: A1B2C3D4"
-                  value={claveIngreso}
-                  onChange={(e) => setClaveIngreso(e.target.value.toUpperCase())}
-                  maxLength={8}
-                  className="uppercase font-mono"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Ingrese la clave de 8 caracteres asignada para su evaluación
-                </p>
-              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleCandidatoLogin()
+                }}
+                className="space-y-4"
+              >
+                <div className="space-y-2">
+                  <Label htmlFor="tipo-doc">Tipo de Documento</Label>
+                  <Select value={tipoDocumento} onValueChange={(v) => setTipoDocumento(v as TipoDocumento)}>
+                    <SelectTrigger id="tipo-doc">
+                      <SelectValue placeholder="Seleccione tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="DNI">DNI</SelectItem>
+                      <SelectItem value="LE">LE</SelectItem>
+                      <SelectItem value="LC">LC</SelectItem>
+                      <SelectItem value="PP">PP (Pasaporte)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="nro-doc">Número de Documento</Label>
+                  <Input
+                    id="nro-doc"
+                    placeholder="Ej: 40123456"
+                    value={nroDocumento}
+                    onChange={(e) => setNroDocumento(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="clave">Clave de Ingreso *</Label>
+                  <Input
+                    id="clave"
+                    placeholder="Ej: A1B2C3D4"
+                    value={claveIngreso}
+                    onChange={(e) => setClaveIngreso(e.target.value.toUpperCase())}
+                    maxLength={8}
+                    className="uppercase font-mono"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Ingrese la clave de 8 caracteres asignada para su evaluación
+                  </p>
+                </div>
 
-              {errorMessage && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{errorMessage}</AlertDescription>
-                </Alert>
-              )}
+                {errorMessage && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                  </Alert>
+                )}
 
-              <div className="flex gap-2 pt-2">
-                <Button className="w-full" onClick={handleCandidatoLogin}>
-                  Ingresar al Cuestionario
-                </Button>
-              </div>
+                <div className="flex gap-2 pt-2">
+                  <Button type="submit" className="w-full">
+                    Ingresar al Cuestionario
+                  </Button>
+                </div>
+              </form>
             </TabsContent>
           </Tabs>
         </CardContent>
