@@ -125,7 +125,7 @@ export function CompletarCuestionarioScreen() {
   }
 
   const handleRespuesta = (preguntaId: number, itemOpcionId: number) => {
-    setRespuestas({ ...respuestas, [preguntaId]: itemOpcionId })
+    setRespuestas((prev) => ({ ...prev, [preguntaId]: itemOpcionId }))
   }
 
   // Pasos 5 a 8: registrarBloqueRespuestas(idCuestionario, respuestas) -> siguiente bloque o finalizarCuestionario
@@ -195,34 +195,44 @@ export function CompletarCuestionarioScreen() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {errorMessage && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            )}
-            <div className="space-y-2">
-              <Label>Clave de Ingreso</Label>
-              <Input
-                placeholder="Ej: AB12CD34"
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value.toUpperCase())}
-                maxLength={8}
-                className="uppercase font-mono text-center text-lg tracking-widest"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={handleLogout}>
-                Volver
-              </Button>
-              <Button
-                className="flex-1"
-                disabled={isLoading || !tokenInput.trim()}
-                onClick={() => iniciarConClave(tokenInput)}
-              >
-                {isLoading ? "Validando..." : "Ingresar"}
-              </Button>
-            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (tokenInput.trim() && !isLoading) {
+                  iniciarConClave(tokenInput)
+                }
+              }}
+              className="space-y-4"
+            >
+              {errorMessage && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-2">
+                <Label>Clave de Ingreso</Label>
+                <Input
+                  placeholder="Ej: AB12CD34"
+                  value={tokenInput}
+                  onChange={(e) => setTokenInput(e.target.value.toUpperCase())}
+                  maxLength={8}
+                  className="uppercase font-mono text-center text-lg tracking-widest"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" className="flex-1" onClick={handleLogout}>
+                  Volver
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={isLoading || !tokenInput.trim()}
+                >
+                  {isLoading ? "Validando..." : "Ingresar"}
+                </Button>
+              </div>
+            </form>
           </CardContent>
         </Card>
       </div>
@@ -335,20 +345,26 @@ export function CompletarCuestionarioScreen() {
                 onValueChange={(value) => handleRespuesta(pregunta.id, parseInt(value))}
               >
                 <div className="space-y-3">
-                  {pregunta.opciones.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer"
-                    >
-                      <RadioGroupItem value={item.id.toString()} id={`p${pregunta.id}-i${item.id}`} />
+                  {pregunta.opciones.map((item) => {
+                    const isSelected = respuestas[pregunta.id] === item.id
+                    return (
                       <Label
+                        key={item.id}
                         htmlFor={`p${pregunta.id}-i${item.id}`}
-                        className="flex-1 cursor-pointer text-sm"
+                        onClick={() => handleRespuesta(pregunta.id, item.id)}
+                        className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:bg-muted/50"
+                        }`}
                       >
-                        {item.descripcion}
+                        <RadioGroupItem value={item.id.toString()} id={`p${pregunta.id}-i${item.id}`} />
+                        <span className="flex-1 text-sm font-normal">
+                          {item.descripcion}
+                        </span>
                       </Label>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </RadioGroup>
             </CardContent>
