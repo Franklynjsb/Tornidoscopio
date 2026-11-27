@@ -1,0 +1,17 @@
+# .dockerignore – files to exclude from Docker build context
+# Maven build artifacts
+target/
+# Git metadata
+.git/
+.gitignore
+# IDE / editor files
+.idea/
+*.iml
+*.log
+# Node / frontend files (not needed for backend image)
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+# Misc
+*.md
+Dockerfile
