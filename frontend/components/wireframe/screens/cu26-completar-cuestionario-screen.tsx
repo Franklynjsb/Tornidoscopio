@@ -125,7 +125,7 @@ export function CompletarCuestionarioScreen() {
   }
 
   const handleRespuesta = (preguntaId: number, itemOpcionId: number) => {
-    setRespuestas({ ...respuestas, [preguntaId]: itemOpcionId })
+    setRespuestas((prev) => ({ ...prev, [preguntaId]: itemOpcionId }))
   }
 
   // Pasos 5 a 8: registrarBloqueRespuestas(idCuestionario, respuestas) -> siguiente bloque o finalizarCuestionario
@@ -345,20 +345,26 @@ export function CompletarCuestionarioScreen() {
                 onValueChange={(value) => handleRespuesta(pregunta.id, parseInt(value))}
               >
                 <div className="space-y-3">
-                  {pregunta.opciones.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer"
-                    >
-                      <RadioGroupItem value={item.id.toString()} id={`p${pregunta.id}-i${item.id}`} />
+                  {pregunta.opciones.map((item) => {
+                    const isSelected = respuestas[pregunta.id] === item.id
+                    return (
                       <Label
+                        key={item.id}
                         htmlFor={`p${pregunta.id}-i${item.id}`}
-                        className="flex-1 cursor-pointer text-sm"
+                        onClick={() => handleRespuesta(pregunta.id, item.id)}
+                        className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:bg-muted/50"
+                        }`}
                       >
-                        {item.descripcion}
+                        <RadioGroupItem value={item.id.toString()} id={`p${pregunta.id}-i${item.id}`} />
+                        <span className="flex-1 text-sm font-normal">
+                          {item.descripcion}
+                        </span>
                       </Label>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </RadioGroup>
             </CardContent>

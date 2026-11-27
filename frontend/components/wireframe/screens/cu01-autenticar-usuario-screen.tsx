@@ -100,7 +100,7 @@ export function AutenticarUsuarioScreen() {
                     maxLength={15}
                     className="uppercase"
                   />
-                  <p className="text-xs text-muted-foreground">Máximo 15 caracteres (Autenticación vía LDAP)</p>
+                  <p className="text-xs text-muted-foreground">Máximo 15 caracteres</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Contraseña *</Label>
